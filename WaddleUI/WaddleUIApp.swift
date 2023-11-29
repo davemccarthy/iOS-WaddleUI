@@ -9,8 +9,10 @@ import SwiftUI
 
 @main
 struct WaddleUIApp: App {
+    
     var body: some Scene {
         WindowGroup {
+            
             ContentView()
         }
     }

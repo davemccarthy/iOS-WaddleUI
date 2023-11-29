@@ -25,7 +25,7 @@ class Dictionary: ObservableObject {
     var index = 0
     
     init(){
-        
+        /*
         var i:Int = 1
         
         print("private val valid = arrayOf(")
@@ -48,7 +48,7 @@ class Dictionary: ObservableObject {
         print(")")
         print(")")
         
-        writeFile()
+        writeFile()*/
     }
     
     func writeFile() -> Bool
@@ -210,7 +210,7 @@ class Dictionary: ObservableObject {
         
         urlRequest.setValue(appId, forHTTPHeaderField: "app_id")
         urlRequest.setValue(appToken, forHTTPHeaderField: "app_key")
-
+        
         let dataTask = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
             if let error = error {
                 print("Request error: ", error)

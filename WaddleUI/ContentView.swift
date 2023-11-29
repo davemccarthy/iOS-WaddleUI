@@ -132,11 +132,14 @@ struct ContentView: View {
     
     @State var streak: Int = 0
     @State var record: Int = 0
-    @State var points: Int = 0
+    //@State var points: Int = 0
     
     @State var fontNorm:Font = .headline
     @State var fontBig:Font = .title
     @State var message = ""
+    
+    @State var glowMin:CGFloat = 1.0
+    @State var glowMax:CGFloat = 1.0
     
     var game = Gamer()
     
@@ -153,11 +156,11 @@ struct ContentView: View {
     //  SCREEN BLUEPRINT
     var body: some View {
         
-        Spacer()
+        VStack(spacing: 0) {
         
-        VStack(spacing: 0){
-        
-            HStack{
+            Spacer()
+            
+            HStack(){
                 
                 HeaderView(title: "Streak", value: $streak)
                 
@@ -166,15 +169,13 @@ struct ContentView: View {
                         .font(fontBig)
                         .fontWeight(.bold)
                 
-                    Text(String(format: "Points %05d",points)).font(.caption)
-                        .transition(AnyTransition.opacity.animation(.easeInOut(duration:2)))
+                    //Text(String(format: "Points %05d",points)).font(.caption)
+                    //    .transition(AnyTransition.opacity.animation(.easeInOut(duration:2)))
                 }
                 
                 HeaderView(title: "Record", value: $record)
             }
-            .padding()
-            .border(.gray, width: 1)
-            .background(.white)
+            .glow(minColor: $glowMin, maxColor: $glowMax)
             .foregroundColor(.black)
             .onAppear {
                 
@@ -186,148 +187,154 @@ struct ContentView: View {
                 
                 loadGame()
             }
-        }
-        .padding(letterWidth / 7)
-        .background(Color("lightGray"))
-        
-        Spacer()
-        
-        //  WORD GRID
-        VStack{
+            .border(Color("lightGray"), width: 2)
+            .padding()
             
-            //  Vertical
-            ForEach(grid.rows, id: \.id) { row in
-                
-                //  Horizontal
-                HStack{
-                
-                    ForEach(row.entries, id: \.id) { entry in
-                        
-                        Button(action: {
-                            
-                            selectEntry(id: entry.id)
-                        }){
-                        Text(entry.value)
-                            .font(fontBig)
-                            .fontWeight(.bold)
-                            .frame(width: letterWidth, height: letterWidth, alignment: .center)
-                            .border(entry.border)
-                            .foregroundColor(entry.foreground)
-                            .background(entry.background)
-                            .animation(.easeOut(duration: 1.0), value: entry.foreground)
-                        }
-                        .disabled(!entry.disabled)
-                    }
-                }
-                .disabled(row.disabled)
-                .onTapGesture(count: 2) {
-                    copyRow(id: row.id)
-                }
-            }
-        }
-        .padding(letterWidth / 7)
-        .background(Color("lightGray"))
-        
-        Spacer()
-        
-        //  KEYBOARD
-        if message == "" {
-            
-            VStack(spacing: 0) {
+            Spacer()
+                    
+            //  WORD GRID
+            VStack{
                 
                 //  Vertical
-                ForEach(keyboard.rows, id: \.id) { row in
+                ForEach(grid.rows, id: \.id) { row in
                     
                     //  Horizontal
-                    HStack(spacing: 4){
-                        
-                        ForEach(row.keys, id: \.id) { key in
+                    HStack{
+                    
+                        ForEach(row.entries, id: \.id) { entry in
                             
                             Button(action: {
-                                keyPressed(key: key.value)
+                                
+                                selectEntry(id: entry.id)
                             }){
-                                Text(key.value)
-                                    .frame(width: key.width, height: keyWidth * 1.5, alignment: .center)
-                                    .font(fontNorm)
+                            Text(entry.value)
+                                .font(fontBig)
+                                .fontWeight(.bold)
+                                .frame(width: letterWidth, height: letterWidth, alignment: .center)
+                                .border(entry.border)
+                                .foregroundColor(entry.foreground)
+                                .background(entry.background)
+                                .animation(.easeOut(duration: 1.0), value: entry.foreground)
                             }
-                            .foregroundColor(key.foreground)
-                            .background(key.background)
-                            .border(Color.gray)
-                            .animation(.easeOut(duration: 1.0), value: key.foreground)
+                            .disabled(!entry.disabled)
                         }
                     }
-                    .padding(4)
-                    //.background(Color(red: 0.95, green: 0.95, blue: 0.95))
-                    .background(Color("lightGray"))
+                    .disabled(row.disabled)
+                    .onTapGesture(count: 2) {
+                        copyRow(id: row.id)
+                    }
                 }
-                
             }
-            .frame(width: keyWidth * 11, height: keyWidth * 5, alignment: .center)
-            .padding(letterWidth / 7)
-            //.background(Color("lightGray"))
-        }
-        //  MESSAGE BUTTON
-        else{
-            
-            Button(action: {
-                
-                showMessage(text: "", delay: 0)
-                
-                dictionary.cancelQuery()
-                
-                if game.over == true {
-                 
-                    self.resetGame()
-                 
-                    //  Reset grid
-                    for (y,row) in grid.rows.enumerated() {
-                        for (x,_) in row.entries.enumerated() {
-                            
-                            updateLetter(row: y, index: x, value: "")
-                        }
-                    }
-                    
-                    //  Reset keyboard
-                    for row in keyboard.rows {
-                        for key in row.keys {
-                            
-                            updateKeyboard(value: key.value, status: .STS_PENDING)
-                        }
-                    }
-                    
-                    highlightCursor()
-                }
-            }){
-                
-                VStack{
-                    
-                    Spacer()
-                    
-                    //  Main message
-                    if dictionary.explanation == "" {
-                    
-                        Text(message)
-                            .font(fontNorm)
-                    }
-                    //  Dictionary description
-                    else {
-                    
-                        Text(dictionary.explanation)
-                            .font(fontNorm)
-                    }
-                    Spacer()
-                    
-                }.frame(width: keyWidth * 10, height: keyWidth * 5, alignment: .center)
-            }
-            .frame(width: keyWidth * 11, height: keyWidth * 5, alignment: .center)
-            .foregroundColor(.white)
-            .background(.black)
-            .border(Color.gray)
             .padding(letterWidth / 7)
             .background(Color("lightGray"))
+            .cornerRadius(5)
+            
+            Spacer()
+            
+            //  KEYBOARD
+            if message == "" {
+                
+                VStack(spacing: 0) {
+                    
+                    //  Vertical
+                    ForEach(keyboard.rows, id: \.id) { row in
+                        
+                        //  Horizontal
+                        HStack(spacing: 4){
+                            
+                            ForEach(row.keys, id: \.id) { key in
+                                
+                                Button(action: {
+                                    keyPressed(key: key.value)
+                                }){
+                                    Text(key.value)
+                                        .frame(width: key.width, height: keyWidth * 1.5, alignment: .center)
+                                        .font(fontNorm)
+                                }
+                                .foregroundColor(key.foreground)
+                                .background(key.background)
+                                .border(Color.gray)
+                                .animation(.easeOut(duration: 1.0), value: key.foreground)
+                            }
+                        }
+                        .padding(4)
+                        //.background(Color(red: 0.95, green: 0.95, blue: 0.95))
+                        .background(Color("lightGray"))
+                        .cornerRadius(5)
+                    }
+                    
+                }
+                .frame(width: keyWidth * 11, height: keyWidth * 5, alignment: .center)
+                .padding(letterWidth / 7)
+                //.opacity(0.7)
+                //.background(Color("lightGray"))
+            }
+            //  MESSAGE BUTTON
+            else{
+                
+                Button(action: {
+                    
+                    showMessage(text: "", delay: 0)
+                    
+                    dictionary.cancelQuery()
+                    
+                    if game.over == true {
+                     
+                        self.resetGame()
+                     
+                        //  Reset grid
+                        for (y,row) in grid.rows.enumerated() {
+                            for (x,_) in row.entries.enumerated() {
+                                
+                                updateLetter(row: y, index: x, value: "")
+                            }
+                        }
+                        
+                        //  Reset keyboard
+                        for row in keyboard.rows {
+                            for key in row.keys {
+                                
+                                updateKeyboard(value: key.value, status: .STS_PENDING)
+                            }
+                        }
+                        
+                        highlightCursor()
+                    }
+                }){
+                    
+                    VStack{
+                        
+                        Spacer()
+                        
+                        //  Main message
+                        if dictionary.explanation == "" {
+                        
+                            Text(message)
+                                .font(fontNorm)
+                        }
+                        //  Dictionary description
+                        else {
+                        
+                            Text(dictionary.explanation)
+                                .font(fontNorm)
+                        }
+                        Spacer()
+                        
+                    }
+                    .frame(width: keyWidth * 10, height: keyWidth * 5, alignment: .center)
+                }
+                .frame(width: keyWidth * 11, height: keyWidth * 5, alignment: .center)
+                .foregroundColor(.white)
+                .background(.black)
+                .border(Color.gray)
+                .padding(letterWidth / 7)
+                .background(Color("lightGray"))
+            }
+            
+            Spacer()
         }
-        
-        Spacer()
+        .glow(minColor: $glowMin, maxColor: $glowMax)
+        //.ignoresSafeArea()
     }
     
     //  Keyboard entry
@@ -439,11 +446,15 @@ struct ContentView: View {
         game.cursorY += 1
         game.cursorX = 0
         
+        //  Deepen glowing
+        glowMin = glowMin - 0.15
+        //glowMax = glowMax - 0.15
+        
         //  Correct word?
         if(word == game.answer){
             
             streak = streak + 1
-            points += (7 - game.cursorY)
+            //points += (7 - game.cursorY)
             
             if streak > record {
                 record = streak
@@ -453,12 +464,13 @@ struct ContentView: View {
             
             defaults.set(streak, forKey: "Streak")
             defaults.set(record, forKey: "Record")
-            defaults.set(points, forKey: "Points")
+            //defaults.set(points, forKey: "Points")
             
             //  Chooses praise word
             let praise = praises[game.cursorY-1][Int.random(in: 0..<praises[game.cursorY-1].count)]
             
-            showMessage(text: "\(praise): \(word.uppercased()) 😊\n\(7-game.cursorY) points",delay: 1000)
+            //showMessage(text: "\(praise): \(word.uppercased()) 😊\n\(7-game.cursorY) points",delay: 1000)
+            showMessage(text: "\(praise): \(word.uppercased()) 😊",delay: 1000)
             
             dictionary.explainWord(word: game.answer)
             
@@ -472,13 +484,13 @@ struct ContentView: View {
             dictionary.explainWord(word: game.answer)
             
             streak = 0
-            points = 0
+            //points = 0
             
             let defaults = UserDefaults.standard
             
             defaults.set(streak, forKey: "Streak")
             defaults.set(record, forKey: "Record")
-            defaults.set(points, forKey: "Points")
+            //defaults.set(points, forKey: "Points")
             
             game.over = true
         }
@@ -532,19 +544,6 @@ struct ContentView: View {
                 }
                 
                 break
-                
-                /*
-                setWord(row: game.cursorY, word: getWord(row: y))
-                
-                for _ in 0..<5 {
-                    
-                    if grid.rows[r].entries[game.cursorX].background != .green {
-                        break
-                    }
-                    else {
-                        game.cursorX += 1
-                    }
-                }*/
             }
             
             y += 1
@@ -637,6 +636,9 @@ struct ContentView: View {
         game.cursorY = 0
         
         grid.rows[0].disabled = false
+        
+        glowMin = 1.0
+        glowMax = 1.0
     }
     
     //  Read status
@@ -655,9 +657,9 @@ struct ContentView: View {
             record = recordStr as! Int
         }
         
-        if let pointStr = defaults.object(forKey:"Points") {
-            points = pointStr as! Int
-        }
+        //if let pointStr = defaults.object(forKey:"Points") {
+        //    points = pointStr as! Int
+        //}
         
         resetGame()
         
