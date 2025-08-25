@@ -145,7 +145,7 @@ class Dictionary: ObservableObject {
         let randomInt = Int.random(in: 0..<self.contenders.count)
         let word = self.contenders[randomInt].uppercased()
         
-        print("--> \(word)")
+        //print("--> \(word)")
         
         return word
     }

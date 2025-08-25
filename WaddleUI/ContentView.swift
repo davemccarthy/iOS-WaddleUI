@@ -138,9 +138,6 @@ struct ContentView: View {
     @State var fontBig:Font = .title
     @State var message = ""
     
-    @State var glowMin:CGFloat = 1.0
-    @State var glowMax:CGFloat = 1.0
-    
     var game = Gamer()
     
     var praises:[[String]] = [
@@ -175,7 +172,7 @@ struct ContentView: View {
                 
                 HeaderView(title: "Record", value: $record)
             }
-            .glow(minColor: $glowMin, maxColor: $glowMax)
+            .frame(width: letterWidth * 6, height: letterWidth * 1.5, alignment: .center)
             .foregroundColor(.black)
             .onAppear {
                 
@@ -187,8 +184,10 @@ struct ContentView: View {
                 
                 loadGame()
             }
-            .border(Color("lightGray"), width: 2)
-            .padding()
+            .background(.white)
+            .border(Color.gray)
+            .padding(letterWidth / 7)
+            .background(Color("lightGray"))
             
             Spacer()
                     
@@ -333,7 +332,6 @@ struct ContentView: View {
             
             Spacer()
         }
-        .glow(minColor: $glowMin, maxColor: $glowMax)
         //.ignoresSafeArea()
     }
     
@@ -445,10 +443,6 @@ struct ContentView: View {
         
         game.cursorY += 1
         game.cursorX = 0
-        
-        //  Deepen glowing
-        glowMin = glowMin - 0.15
-        //glowMax = glowMax - 0.15
         
         //  Correct word?
         if(word == game.answer){
@@ -636,9 +630,6 @@ struct ContentView: View {
         game.cursorY = 0
         
         grid.rows[0].disabled = false
-        
-        glowMin = 1.0
-        glowMax = 1.0
     }
     
     //  Read status

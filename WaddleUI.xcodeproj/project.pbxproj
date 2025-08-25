@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		87055D7127FECAB4008F110F /* Dictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87055D7027FECAB4008F110F /* Dictionary.swift */; };
 		870C59EA27F0981D005566C6 /* WRDString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 870C59E927F0981D005566C6 /* WRDString.swift */; };
-		87BD466C2B036A6D00E302D1 /* GlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BD466B2B036A6C00E302D1 /* GlowView.swift */; };
 		87FC709727E9B775006F98FF /* WaddleUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC709627E9B775006F98FF /* WaddleUIApp.swift */; };
 		87FC709927E9B775006F98FF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC709827E9B775006F98FF /* ContentView.swift */; };
 		87FC709B27E9B776006F98FF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 87FC709A27E9B776006F98FF /* Assets.xcassets */; };
@@ -19,7 +18,6 @@
 /* Begin PBXFileReference section */
 		87055D7027FECAB4008F110F /* Dictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dictionary.swift; sourceTree = "<group>"; };
 		870C59E927F0981D005566C6 /* WRDString.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WRDString.swift; path = ../../Waddle/Waddle/WRDString.swift; sourceTree = "<group>"; };
-		87BD466B2B036A6C00E302D1 /* GlowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GlowView.swift; path = ../../CustomView/CustomView/GlowView.swift; sourceTree = "<group>"; };
 		87FC709327E9B775006F98FF /* WaddleUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WaddleUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		87FC709627E9B775006F98FF /* WaddleUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaddleUIApp.swift; sourceTree = "<group>"; };
 		87FC709827E9B775006F98FF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -57,7 +55,6 @@
 		87FC709527E9B775006F98FF /* WaddleUI */ = {
 			isa = PBXGroup;
 			children = (
-				87BD466B2B036A6C00E302D1 /* GlowView.swift */,
 				87055D7027FECAB4008F110F /* Dictionary.swift */,
 				87FC709627E9B775006F98FF /* WaddleUIApp.swift */,
 				87FC709827E9B775006F98FF /* ContentView.swift */,
@@ -150,7 +147,6 @@
 				87055D7127FECAB4008F110F /* Dictionary.swift in Sources */,
 				870C59EA27F0981D005566C6 /* WRDString.swift in Sources */,
 				87FC709727E9B775006F98FF /* WaddleUIApp.swift in Sources */,
-				87BD466C2B036A6D00E302D1 /* GlowView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
