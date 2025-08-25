@@ -20,16 +20,16 @@ enum LetterStatus:Int, Comparable {
     }
 }
 
-//  Individual grid letter entry
+//  Individual grid entry
 struct GridEntry: Identifiable {
-    
-    var id:UUID = UUID()
+
+    let id = UUID()
     var value:String = ""
     var disabled = true
     
-    var foreground:Color = .black
+    var foreground:Color = .primary
     var background:Color = .white
-    var border:Color = .gray
+    var border:Color = Color(.systemGray4)
 }
 
 //  Five letter row
@@ -53,8 +53,8 @@ struct Key: Identifiable {
     let id = UUID()
     var value:String
     
-    var foreground:Color = .black
-    var background:Color = .white
+    var foreground:Color = .primary
+    var background:Color = Color(.systemGray5)
     
     var status:LetterStatus = .STS_PENDING
     var width:CGFloat
@@ -99,17 +99,20 @@ struct HeaderView: View {
     
     var body: some View {
         
-        Spacer()
-        
-        VStack {
+        VStack(spacing: 4) {
             
-            Text(title).font(.caption)
-            Text(String(value)).font(.title)
-                .transition(AnyTransition.opacity.animation(.easeInOut(duration:2)))
+            Text(title)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.secondary)
+            
+            Text(String(value))
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+                .transition(AnyTransition.opacity.combined(with: .scale).animation(.easeInOut(duration: 0.3)))
                 .id(String(value))
         }
-        
-        Spacer()
     }
 }
 
@@ -150,189 +153,213 @@ struct ContentView: View {
         ["CORRECT (PHEW)"]
     ]
     
-    //  SCREEN BLUEPRINT
+    //  SCREEN BLUEPRINT - MODERN UI WITH SPACING FIX
     var body: some View {
         
-        VStack(spacing: 0) {
-        
-            Spacer()
+        ZStack {
+            // Background gradient - Darker gray theme
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(.systemGray5),  // Darker gray
+                    Color(.systemGray6)   // Even darker gray
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
             
-            HStack(){
+            VStack(spacing: 16) {
                 
-                HeaderView(title: "Streak", value: $streak)
-                
-                VStack {
-                    Text("WaddleUI")
-                        .font(fontBig)
-                        .fontWeight(.bold)
-                
-                    //Text(String(format: "Points %05d",points)).font(.caption)
-                    //    .transition(AnyTransition.opacity.animation(.easeInOut(duration:2)))
-                }
-                
-                HeaderView(title: "Record", value: $record)
-            }
-            .frame(width: letterWidth * 6, height: letterWidth * 1.5, alignment: .center)
-            .foregroundColor(.black)
-            .onAppear {
-                
-                if UIDevice.current.userInterfaceIdiom == .pad {
+                // Header - Modern styling
+                HStack {
                     
-                    fontBig = .system(size: 48, weight: .bold, design: .default)
-                    fontNorm = .title
-                }
-                
-                loadGame()
-            }
-            .background(.white)
-            .border(Color.gray)
-            .padding(letterWidth / 7)
-            .background(Color("lightGray"))
-            
-            Spacer()
+                    HeaderView(title: "STREAK", value: $streak)
                     
-            //  WORD GRID
-            VStack{
-                
-                //  Vertical
-                ForEach(grid.rows, id: \.id) { row in
+                    Spacer()
                     
-                    //  Horizontal
-                    HStack{
-                    
-                        ForEach(row.entries, id: \.id) { entry in
-                            
-                            Button(action: {
-                                
-                                selectEntry(id: entry.id)
-                            }){
-                            Text(entry.value)
-                                .font(fontBig)
-                                .fontWeight(.bold)
-                                .frame(width: letterWidth, height: letterWidth, alignment: .center)
-                                .border(entry.border)
-                                .foregroundColor(entry.foreground)
-                                .background(entry.background)
-                                .animation(.easeOut(duration: 1.0), value: entry.foreground)
-                            }
-                            .disabled(!entry.disabled)
-                        }
-                    }
-                    .disabled(row.disabled)
-                    .onTapGesture(count: 2) {
-                        copyRow(id: row.id)
-                    }
-                }
-            }
-            .padding(letterWidth / 7)
-            .background(Color("lightGray"))
-            .cornerRadius(5)
-            
-            Spacer()
-            
-            //  KEYBOARD
-            if message == "" {
-                
-                VStack(spacing: 0) {
-                    
-                    //  Vertical
-                    ForEach(keyboard.rows, id: \.id) { row in
+                    VStack(spacing: 4) {
+                        Text("WADDLE")
+                            .font(.system(size: 28, weight: .black, design: .rounded))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.blue, .purple],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
                         
-                        //  Horizontal
-                        HStack(spacing: 4){
+                        Text("Word Puzzle")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    HeaderView(title: "RECORD", value: $record)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(red: 0.98, green: 0.95, blue: 0.9)) // Warm cream background
+                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                )
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+                
+                //  WORD GRID - Modern styling
+                VStack(spacing: 6) {
+                    
+                    ForEach(grid.rows, id: \.id) { row in
+                        
+                        HStack(spacing: 6) {
                             
-                            ForEach(row.keys, id: \.id) { key in
+                            ForEach(row.entries, id: \.id) { entry in
                                 
                                 Button(action: {
-                                    keyPressed(key: key.value)
-                                }){
-                                    Text(key.value)
-                                        .frame(width: key.width, height: keyWidth * 1.5, alignment: .center)
-                                        .font(fontNorm)
+                                    selectEntry(id: entry.id)
+                                }) {
+                                    Text(entry.value)
+                                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                                        .frame(width: letterWidth, height: letterWidth)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .fill(entry.background)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 8)
+                                                        .stroke(entry.border, lineWidth: 1.5)
+                                                )
+                                        )
+                                        .foregroundColor(entry.foreground)
+                                        .scaleEffect(entry.value.isEmpty ? 0.9 : 1.0)
+                                        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: entry.value)
                                 }
-                                .foregroundColor(key.foreground)
-                                .background(key.background)
-                                .border(Color.gray)
-                                .animation(.easeOut(duration: 1.0), value: key.foreground)
+                                .disabled(!entry.disabled)
                             }
                         }
-                        .padding(4)
-                        //.background(Color(red: 0.95, green: 0.95, blue: 0.95))
-                        .background(Color("lightGray"))
-                        .cornerRadius(5)
+                        .disabled(row.disabled)
+                        .onTapGesture(count: 2) {
+                            copyRow(id: row.id)
+                        }
                     }
-                    
                 }
-                .frame(width: keyWidth * 11, height: keyWidth * 5, alignment: .center)
-                .padding(letterWidth / 7)
-                //.opacity(0.7)
-                //.background(Color("lightGray"))
-            }
-            //  MESSAGE BUTTON
-            else{
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color(red: 0.98, green: 0.95, blue: 0.9)) // Warm cream background
+                        .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 3)
+                )
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
                 
-                Button(action: {
-                    
-                    showMessage(text: "", delay: 0)
-                    
-                    dictionary.cancelQuery()
-                    
-                    if game.over == true {
-                     
-                        self.resetGame()
-                     
-                        //  Reset grid
-                        for (y,row) in grid.rows.enumerated() {
-                            for (x,_) in row.entries.enumerated() {
+                //  KEYBOARD OR MESSAGE BUTTON - Modern styling
+                Group {
+                    if message == "" {
+                        //  KEYBOARD - Modern styling
+                        VStack(spacing: 6) {
+                            ForEach(keyboard.rows, id: \.id) { row in
                                 
-                                updateLetter(row: y, index: x, value: "")
+                                HStack(spacing: 4) {
+                                    
+                                    ForEach(row.keys, id: \.id) { key in
+                                        
+                                        Button(action: {
+                                            keyPressed(key: key.value)
+                                        }) {
+                                            Text(key.value)
+                                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                                .frame(maxWidth: .infinity, maxHeight: 50)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 6)
+                                                        .fill(key.background)
+                                                        .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
+                                                )
+                                                .foregroundColor(key.foreground)
+                                                .scaleEffect(0.95)
+                                                .animation(.easeInOut(duration: 0.1), value: key.background)
+                                        }
+                                    }
+                                }
                             }
                         }
-                        
-                        //  Reset keyboard
-                        for row in keyboard.rows {
-                            for key in row.keys {
+                    } else {
+                        //  MESSAGE BUTTON - Modern styling
+                        Button(action: {
+                            showMessage(text: "", delay: 0)
+                            dictionary.cancelQuery()
+                            
+                            if game.over == true {
+                                self.resetGame()
                                 
-                                updateKeyboard(value: key.value, status: .STS_PENDING)
+                                //  Reset grid
+                                for (y,row) in grid.rows.enumerated() {
+                                    for (x,_) in row.entries.enumerated() {
+                                        updateLetter(row: y, index: x, value: "")
+                                    }
+                                }
+                                
+                                //  Reset keyboard
+                                for row in keyboard.rows {
+                                    for key in row.keys {
+                                        updateKeyboard(value: key.value, status: .STS_PENDING)
+                                    }
+                                }
+                                
+                                highlightCursor()
                             }
+                        }) {
+                            
+                            VStack(spacing: 8) {
+                                
+                                if dictionary.explanation == "" {
+                                    Text(message)
+                                        .font(.headline)
+                                        .multilineTextAlignment(.center)
+                                } else {
+                                    Text(dictionary.explanation)
+                                        .font(.subheadline)
+                                        .multilineTextAlignment(.center)
+                                        .lineLimit(3)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [.blue, .purple],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                            )
+                            .foregroundColor(.white)
                         }
-                        
-                        highlightCursor()
                     }
-                }){
-                    
-                    VStack{
-                        
-                        Spacer()
-                        
-                        //  Main message
-                        if dictionary.explanation == "" {
-                        
-                            Text(message)
-                                .font(fontNorm)
-                        }
-                        //  Dictionary description
-                        else {
-                        
-                            Text(dictionary.explanation)
-                                .font(fontNorm)
-                        }
-                        Spacer()
-                        
-                    }
-                    .frame(width: keyWidth * 10, height: keyWidth * 5, alignment: .center)
                 }
-                .frame(width: keyWidth * 11, height: keyWidth * 5, alignment: .center)
-                .foregroundColor(.white)
-                .background(.black)
-                .border(Color.gray)
-                .padding(letterWidth / 7)
-                .background(Color("lightGray"))
+                .frame(height: 132) // Fixed height for both keyboard and message
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(red: 0.98, green: 0.95, blue: 0.9)) // Warm cream background
+                        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                )
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+                
+                Spacer(minLength: 16) // Small gap at bottom
             }
-            
-            Spacer()
+            .padding(.top, 60) // Fixed top padding for status bar
         }
-        //.ignoresSafeArea()
+        .onAppear {
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                fontBig = .system(size: 48, weight: .bold, design: .default)
+                fontNorm = .title
+            }
+            loadGame()
+        }
     }
     
     //  Keyboard entry
@@ -381,11 +408,11 @@ struct ContentView: View {
         }
     
         for n in 0..<5 {
-            grid.rows[game.cursorY].entries[n].border = .gray
+            grid.rows[game.cursorY].entries[n].border = Color(.systemGray4)
         }
         
         if(game.cursorX < 5){
-            grid.rows[game.cursorY].entries[game.cursorX].border = .cyan
+            grid.rows[game.cursorY].entries[game.cursorX].border = .blue
         }
     }
         
@@ -560,7 +587,7 @@ struct ContentView: View {
         switch status {
             
         case .STS_PENDING:
-            grid.rows[row].entries[index].foreground = .black
+            grid.rows[row].entries[index].foreground = .primary
             grid.rows[row].entries[index].background = .white
             
         case .STS_POSITIONED:
@@ -573,10 +600,10 @@ struct ContentView: View {
             
         case .STS_OUTCAST:
             grid.rows[row].entries[index].foreground = .white
-            grid.rows[row].entries[index].background = .gray
+            grid.rows[row].entries[index].background = Color(.systemGray3)
         }
         
-        grid.rows[row].entries[index].border = .gray
+        grid.rows[row].entries[index].border = Color(.systemGray4)
         grid.rows[row].entries[index].value = value
     }
     
@@ -600,8 +627,8 @@ struct ContentView: View {
                     switch status {
                         
                     case .STS_PENDING:
-                        keyboard.rows[y].keys[x].foreground = .black
-                        keyboard.rows[y].keys[x].background = .white
+                        keyboard.rows[y].keys[x].foreground = .primary
+                        keyboard.rows[y].keys[x].background = Color(.systemGray5)
                         
                     case .STS_POSITIONED:
                         keyboard.rows[y].keys[x].foreground = .white
@@ -613,7 +640,7 @@ struct ContentView: View {
                         
                     case .STS_OUTCAST:
                         keyboard.rows[y].keys[x].foreground = .white
-                        keyboard.rows[y].keys[x].background = .gray
+                        keyboard.rows[y].keys[x].background = Color(.systemGray3)
                     }
                 }
             }

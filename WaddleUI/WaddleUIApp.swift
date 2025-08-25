@@ -14,6 +14,7 @@ struct WaddleUIApp: App {
         WindowGroup {
             
             ContentView()
+                .preferredColorScheme(.light) // Optional: force light mode for consistent appearance
         }
     }
 }
